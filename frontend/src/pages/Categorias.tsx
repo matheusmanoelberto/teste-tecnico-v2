@@ -25,7 +25,6 @@ export default function Categorias() {
     <div>
       <h1 className="text-3xl font-bold mb-6">Categorias</h1>
 
-      {/* Formulário */}
       <div className="bg-neutral-800 rounded-lg p-4 md:p-6 border border-neutral-700 mb-6">
         <h2 className="text-xl font-semibold mb-4 text-blue-400">
           Nova Categoria
@@ -69,7 +68,6 @@ export default function Categorias() {
         </form>
       </div>
 
-      {/* Lista */}
       <div className="bg-neutral-800 rounded-lg p-6 border border-neutral-700">
         {loading ? (
           <p>Carregando...</p>

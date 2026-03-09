@@ -18,7 +18,6 @@ export default function Layout({ children }: { children: ReactNode }) {
       <aside className="w-full md:w-64 bg-neutral-950 p-4 md:p-6 flex flex-row md:flex-col border-b md:border-b-0 md:border-r border-neutral-800 shrink-0 overflow-x-auto">
         <h1 className="text-xl font-bold mb-0 md:mb-8 text-blue-400 hidden md:block">FinancialControl</h1>
         
-        {/* Versão encurtada do título para mobile ou esconder no mobile */}
         <h1 className="text-lg font-bold mb-0 mr-4 text-blue-400 block md:hidden flex-shrink-0 self-center">FC</h1>
 
         <nav className="flex flex-row md:flex-col gap-2 md:space-y-2 flex-nowrap w-full">

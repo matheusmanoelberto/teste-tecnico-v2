@@ -1,40 +1,36 @@
-import { useEffect, useState } from 'react';
-import api from '../services/api';
+import { useState } from 'react';
+import { usePessoas } from '../hooks/usePessoas';
+import { AxiosError } from 'axios';
 
 export default function Pessoas() {
-  const [pessoas, setPessoas] = useState<any[]>([]);
+  const { pessoas, loading, cadastrarPessoa, excluirPessoa } = usePessoas();
   const [nome, setNome] = useState('');
   const [idade, setIdade] = useState('');
-
-  const carregarPessoas = () => {
-    api.get('/pessoas').then(res => setPessoas(res.data)).catch(console.error);
-  };
-
-  useEffect(() => {
-    carregarPessoas();
-  }, []);
 
   const handleCadastrar = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.post('/pessoas', { nome, idade: parseInt(idade) });
+      await cadastrarPessoa(nome, parseInt(idade));
       setNome('');
       setIdade('');
-      carregarPessoas();
-    } catch (error: any) {
-      alert(error.response?.data || 'Erro ao cadastrar pessoa.');
+    } catch (error: unknown) {
+      const err = error as AxiosError<string>;
+      alert(err.response?.data || 'Erro ao cadastrar pessoa.');
     }
   };
 
   const handleExcluir = async (id: number) => {
-    if (!window.confirm('Tem certeza que deseja excluir esta pessoa?')) return;
     try {
-      await api.delete(`/pessoas/${id}`);
-      carregarPessoas();
-    } catch (error: any) {
-      alert(error.response?.data?.error || 'Erro ao excluir pessoa.');
+      await excluirPessoa(id);
+    } catch (error: unknown) {
+      const err = error as AxiosError<{ error: string }>;
+      alert(err.response?.data?.error || 'Erro ao excluir pessoa.');
     }
   };
+
+  if (loading) {
+    return <div className="p-6 text-neutral-400">Carregando pessoas...</div>;
+  }
 
   return (
     <div>

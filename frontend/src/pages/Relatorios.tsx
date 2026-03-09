@@ -1,17 +1,15 @@
-import { useEffect, useState } from 'react';
-import api from '../services/api';
+import { useRelatorios } from '../hooks/useRelatorios';
 
 export default function Relatorios() {
-  const [totaisPessoa, setTotaisPessoa] = useState<any[]>([]);
-  const [totalGeral, setTotalGeral] = useState<any>(null);
+  const { totaisPessoa, totalGeral, loading } = useRelatorios();
 
-  useEffect(() => {
-    api.get('/relatorios/pessoas').then(res => setTotaisPessoa(res.data)).catch(console.error);
-    api.get('/relatorios/geral').then(res => setTotalGeral(res.data)).catch(console.error);
-  }, []);
+  if (loading) {
+    return <div className="p-6 text-neutral-400">Carregando relatórios...</div>;
+  }
 
   return (
     <div>
+
       <h1 className="text-3xl font-bold mb-6">Relatórios</h1>
       
       {totalGeral && (

@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useCategorias } from "../hooks/useCategorias";
-import api from "../services/api";
+import { useTransacoes } from "../hooks/useTransacoes";
 import { AxiosError } from "axios";
 
 export default function Transacoes() {
   const { categorias } = useCategorias();
-
-  const [transacoes, setTransacoes] = useState<any[]>([]);
-  const [pessoas, setPessoas] = useState<any[]>([]);
+  const { transacoes, pessoas, loading, cadastrarTransacao, excluirTransacao } =
+    useTransacoes();
 
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
@@ -15,24 +14,11 @@ export default function Transacoes() {
   const [categoriaId, setCategoriaId] = useState("");
   const [pessoaId, setPessoaId] = useState("");
 
-  const carregarDados = () => {
-    api
-      .get("/transacoes")
-      .then((res) => setTransacoes(res.data))
-      .catch(console.error);
-    api
-      .get("/pessoas")
-      .then((res) => {
-        setPessoas(res.data);
-        if (res.data.length > 0 && !pessoaId)
-          setPessoaId(res.data[0].id.toString());
-      })
-      .catch(console.error);
-  };
-
   useEffect(() => {
-    carregarDados();
-  }, []);
+    if (pessoas.length > 0 && !pessoaId) {
+      setPessoaId(pessoas[0].id.toString());
+    }
+  }, [pessoas, pessoaId]);
 
   useEffect(() => {
     if (categorias.length > 0 && !categoriaId) {
@@ -44,7 +30,7 @@ export default function Transacoes() {
     e.preventDefault();
 
     const pessoaSelecionada = pessoas.find((p) => p.id.toString() === pessoaId);
-    if (pessoaSelecionada && pessoaSelecionada.id < 18 && tipo === "1") {
+    if (pessoaSelecionada && pessoaSelecionada.idade < 18 && tipo === "1") {
       alert(
         "Menores de 18 anos só podem registrar transações do tipo Despesa.",
       );
@@ -67,16 +53,15 @@ export default function Transacoes() {
     }
 
     try {
-      await api.post("/transacoes", {
+      await cadastrarTransacao(
         descricao,
-        valor: parseFloat(valor),
-        tipo: parseInt(tipo),
-        categoriaId: parseInt(categoriaId),
-        pessoaId: parseInt(pessoaId),
-      });
+        parseFloat(valor),
+        parseInt(tipo),
+        parseInt(categoriaId),
+        parseInt(pessoaId),
+      );
       setDescricao("");
       setValor("");
-      carregarDados();
     } catch (error: unknown) {
       const err = error as AxiosError<string>;
       alert(err.response?.data || "Erro ao registrar transação.");
@@ -84,16 +69,21 @@ export default function Transacoes() {
   };
 
   const handleExcluir = async (id: number) => {
-    if (!window.confirm("Tem certeza que deseja excluir esta transação?"))
-      return;
     try {
-      await api.delete(`/transacoes/${id}`);
-      carregarDados();
+      await excluirTransacao(id);
     } catch (error: unknown) {
       const err = error as AxiosError<{ error: string }>;
       alert(err.response?.data?.error || "Erro ao excluir transação.");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 text-neutral-400">
+        Carregando transações e pessoas...
+      </div>
+    );
+  }
 
   return (
     <div>
